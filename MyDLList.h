@@ -227,8 +227,8 @@ public:
     }
 
     void insert(T value, size_t position) {
-        Node* newNode = new Node(value);
         if (position == 0) {
+            Node* newNode = new Node(value);
             newNode -> next_ = head_;
             if (size_ != 0) {
                 head_ -> prev_ = newNode;   
@@ -237,10 +237,12 @@ public:
             }
             head_ = newNode;
         } else if (position == size_) {
+            Node* newNode = new Node(value);
             newNode -> prev_ = tail_;       
             tail_ -> next_ = newNode;       
             tail_ = newNode;               
         } else if (position < size_) {
+            Node* newNode = new Node(value);
             Node* current_ = head_;
             for (size_t i = 0; i < position - 1; i++) {
                 current_ = current_ -> next_;   // дошли до левого 

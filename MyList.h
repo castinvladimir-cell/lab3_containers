@@ -153,7 +153,7 @@ public:
                 Node* current_ = head_; 
                 Node* newNode = new Node(value); 
                 for (int i = 0; i < position - 1; i++) {
-                    current_ = current_ -> next_;   // ✔ дошли до Б
+                    current_ = current_ -> next_;   // дошли до Б
                 }
                 newNode -> next_ = current_ -> next_;       
                 current_ -> next_ = newNode;             
