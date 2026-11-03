@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <limits.h>
 #include <stdexcept>
 
   //               head_                                                   tail_
@@ -11,17 +10,17 @@
 template <class T>
 class MyDLList {
 private:
-    size_t size_; 
+    size_t size_ = 0; 
     
     struct Node 
     {
-        T data_;
-        Node* next_;
-        Node* prev_; 
-        Node(T value) : data_(value), next_(nullptr), prev_(nullptr) {}
+        T data_ = 0;
+        Node* next_ = nullptr;
+        Node* prev_ = nullptr; 
+        Node(const T& value) : data_(value), next_(nullptr), prev_(nullptr) {}
     };
-    Node* head_; 
-    Node* tail_; 
+    Node* head_ = nullptr; 
+    Node* tail_ = nullptr; 
 
     void move_(MyDLList<T>& other) {
         size_ = other.size_; 
@@ -33,10 +32,10 @@ private:
     }
 
     void deleting_() {
-        Node* current_;
-        Node* ptratnext_;          //нужно удалять все элементы начиная с первого и запоминая указатель на следующий элемент. 
+        Node* current_ = nullptr;
+        Node* ptratnext_ = nullptr;          //нужно удалять все элементы начиная с первого и запоминая указатель на следующий элемент. 
         if (size_ >= 1) {                               // размер 1 и более - тогда действуем
-            for (int i = 0; i < size_; i++) {          // проходим все узлы 
+            for (size_t i = 0; i < size_; i++) {          // проходим все узлы 
                 if (i == 0) {                         // Первый узел
                     current_ = head_;                // указывает на первый узел, значит current_ получает адрес первого.
                     ptratnext_ = current_ -> next_; // next_ первого узла указывает на второй.
@@ -60,7 +59,7 @@ private:
         Node* coppyer = other.head_;
         
         if (other.size_ >= 1) { //Проходим по оригу и пушбэкаем в паль
-            for (int i = 0; i < other.size_; i++) {
+            for (size_t i = 0; i < other.size_; i++) {
                 if (i == 0) {  
                     push_back(coppyer -> data_);    
                 } else {  
@@ -74,7 +73,7 @@ private:
 public: 
 
     struct iterator {
-        Node* iter; 
+        Node* iter = nullptr; 
 
         T& operator*() {
             return iter -> data_; 
@@ -118,10 +117,26 @@ public:
         if (j >= size_) {
             throw std::out_of_range("Error: this element are not in list");
         } else {
-            Node* current_;
-            for (int i = 0; i != j + 1; i++) {
+            Node* current_ = nullptr;
+            for (size_t i = 0; i != j + 1; i++) {
                 if (i == 0) {  
                     current_ = head_;    
+                } else {  
+                    current_ = current_ -> next_; 
+                }
+            }  
+            return current_ -> data_;
+        } 
+    }
+
+    const T& operator[](size_t j) const {
+        if (j >= size_) {
+            throw std::out_of_range("Error: this element are not in list");
+        } else {
+            Node* current_ = nullptr;
+            for (size_t i = 0; i != j + 1; i++) {
+                if (i == 0) {  
+                    current_ = head_;       
                 } else {  
                     current_ = current_ -> next_; 
                 }
@@ -156,9 +171,9 @@ public:
         }
     } 
 
-    void push_back(T value) {
+    void push_back(const T& value) {
         if (size_ >= 1) {
-            Node* current;
+            Node* current = nullptr;
             current = tail_;
             current -> next_ = new Node(value);
             tail_ = current -> next_;
@@ -166,7 +181,7 @@ public:
             size_ ++; 
 
         } else {
-            Node* current;
+            Node* current = nullptr;
             head_ = new Node(value);
             tail_ = head_; 
             current = head_; 
@@ -175,7 +190,7 @@ public:
         }
     }
 
-    size_t size() {
+    size_t size() const {
         return size_;
     }
 
@@ -183,7 +198,7 @@ public:
         if (position >= size_) { 
             throw std::out_of_range("Error: position are not in this range");
         } else {
-            Node* current_; // Успешная проверка на порядковый номер удаляемого елемента 
+            Node* current_ = nullptr; // Успешная проверка на порядковый номер удаляемого елемента 
             if (position == 0) {
                 if (size_ >= 2) {
                     current_ = head_; 
@@ -204,7 +219,7 @@ public:
             } else {
                 if (position > size_ / 2) {
                     current_ = tail_; 
-                    for (int i = 0; i < (size_ - 1) - position; i++) {
+                    for (size_t i = 0; i < (size_ - 1) - position; i++) {
                         current_ = current_ -> prev_;
                     }
                     current_ -> prev_ -> next_ = current_ -> next_;
@@ -214,7 +229,7 @@ public:
                      
                 } else {     
                     current_ = head_; 
-                    for (int i = 0; i < position; i++) {
+                    for (size_t i = 0; i < position; i++) {
                         current_ = current_ -> next_;
                     }
                     current_ -> prev_ -> next_ = current_ -> next_;
@@ -226,7 +241,7 @@ public:
         }
     }
 
-    void insert(T value, size_t position) {
+    void insert(const T& value, size_t position) {
         if (position == 0) {
             Node* newNode = new Node(value);
             newNode -> next_ = head_;
@@ -259,8 +274,8 @@ public:
 
     void print_list() {
         if (size_ >= 1) {
-            Node* current_;
-            for (int i = 0; i < size_; i++) {
+            Node* current_ = nullptr;
+            for (size_t i = 0; i < size_; i++) {
                 if (i == 0) {  
                     current_ = head_;
                     std::cout << current_ -> data_ << std::endl;    
@@ -279,23 +294,21 @@ public:
         copyelements_(other);
     }
 
-    MyDLList() {
-        size_ = 0;
-        head_ = nullptr;
-        tail_ = nullptr; 
-    }
+    MyDLList() = default;
 
-    MyDLList(size_t size, T value) { // Нужно сделать так, чтобы создалось опр. кол-во узлов с опр. типом и значением этого типа
-        head_ = nullptr; 
-        tail_ = nullptr; 
-        size_ = 0;
-        for (int i = 0; i < size; i++) {
+    MyDLList(size_t size,const T& value) { // Нужно сделать так, чтобы создалось опр. кол-во узлов с опр. типом и значением этого типа
+        for (size_t i = 0; i < size; i++) {
             push_back(value); 
         }
     }
 
-    MyDLList(MyDLList<T>&& other) noexcept {
-        move_(other); 
+    MyDLList(MyDLList<T>&& other) noexcept
+        : size_(other.size_)
+        , head_(other.head_)
+        , tail_(other.tail_) {
+        other.head_ = nullptr;
+        other.tail_ = nullptr;
+        other.size_ = 0;
     }
 
     ~MyDLList() {
