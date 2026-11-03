@@ -1,5 +1,5 @@
 #include <iostream>
-#include <utility>
+#include <type_traits>
 #include "MyVector.h"
 #include "MyList.h"
 #include "MyDLList.h"
@@ -10,6 +10,11 @@ void print(T& cont) { // вывод через итератор
         std::cout << *it << " ";
     }
     std::cout << std::endl;
+}
+
+template <class T>
+std::remove_reference_t<T>&& my_move(T&& x) noexcept { // свой std::move
+    return static_cast<std::remove_reference_t<T>&&>(x);
 }
 
 template <class T>
@@ -55,13 +60,13 @@ void test(T& a) {
     std::cout << " c = a " << std::endl;
     print(c);
 
-    T m(std::move(b)); // перемещение, b после этого пустой
+    T m(my_move(b)); // перемещение, b после этого пустой
     std::cout << " Перемещение " << std::endl;
     print(m);
     std::cout << " Размер b " << b.size() << std::endl;
 
-    c = std::move(m);
-    std::cout << " c = move(m) " << std::endl;
+    c = my_move(m);
+    std::cout << " c = my_move(m) " << std::endl;
     print(c);
     std::cout << " Размер m " << m.size() << std::endl;
 
@@ -72,7 +77,7 @@ void test(T& a) {
     }
 }
 
-int main()  
+int main()
 {
     MyVector<int> v;
     std::cout << "----Вектор-----" << std::endl;

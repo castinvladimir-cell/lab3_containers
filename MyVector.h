@@ -7,38 +7,37 @@
 template <class T>
 class MyVector{ 
 private: 
-    int capacity_; // фактический размер блока данных. Razmer videlennoy pamati / максимально доступный 
-    int size_; // Polzovatelyu < capacity / текущий размер 
-    T* data_; // будет хранить место (обновление). Выделение динамической памяти (здесь запись). //тут необязателен int 
+    size_t capacity_; // фактический размер блока данных. Razmer videlennoy pamati / максимально доступный 
+    size_t size_;    // Polzovatelyu < capacity / текущий размер 
+    T* data_;       // будет хранить место (обновление). Выделение динамической памяти (здесь запись). //тут необязателен int 
 
-    void copyelements(const MyVector<T>& other){
+    void copyelements(const MyVector<T>& other) {
         data_ = new T[other.capacity_];
         capacity_ = other.capacity_;
         size_ = other.size_;
 
         for(int i = 0; i < size_; i++) {
-            
             data_[i] = other.data_[i]; 
         }
     } // element equals another elements (copying elemenets) 
 
-    void memexp(){ 
-        if(size_ + 1 > capacity_){ 
-            if(capacity_ == 0){ //Пустой капасити 
+    void memexp() { 
+        if(size_ + 1 > capacity_) { 
+            if (capacity_ == 0) {   //Пустой капасити 
                 T *tmp = new T[2]; //тут необязателен int 
                 delete[] data_; 
                 data_ = tmp; 
                 capacity_ = 2; 
-            }else if(capacity_ < INT_MAX/2){ // 1. capacity меньше половины макс. зн - я 
-                T* tmp = new T[capacity_ * 2]; //тут необязателен int 
+            } else if (capacity_ < INT_MAX / 2) {    // 1. capacity меньше половины макс. зн - я 
+                T* tmp = new T[capacity_ * 2];      //тут необязателен int 
                 for(int i = 0; i < size_; i++){ 
                     tmp[i] = data_[i]; 
                 } 
                 delete[] data_; 
                 data_ = tmp; 
                 capacity_ = capacity_ * 2; 
-            } else if (capacity_ != INT_MAX){ // 2. больше половины 
-                T* tmp = new T[INT_MAX]; // тут необязателен int 
+            } else if (capacity_ != INT_MAX) { // 2. больше половины 
+                T* tmp = new T[INT_MAX];      // тут необязателен int 
                 for(int i = 0; i < size_; i++){ 
                     tmp[i] = data_[i]; 
                 } 
@@ -55,7 +54,7 @@ private:
         size_ = other.size_; 
         capacity_ = other.capacity_; 
         data_ = other.data_; 
-        other.data_ = nullptr; 
+        other.data_ = nullptr; //копирование 
         other.size_ = 0; 
         other.capacity_ = 0; 
     }
@@ -126,13 +125,13 @@ public:
         data_ = nullptr; 
     } 
 
-    MyVector(const int size){ 
+    MyVector(const int size) { 
         data_ = new T[size]; //тут необязателен int 
         capacity_ = size; 
         size_ = size; 
     } 
 
-    void insert(T ElVal, int ElNum){ 
+    void insert(T ElVal, int ElNum) { 
         if(ElNum >= 0 && ElNum <= size_){
             memexp(); 
             for(int i = size_; i != ElNum ; i--){ 
