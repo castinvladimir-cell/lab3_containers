@@ -4,11 +4,12 @@
 #include <limits>                 
 #include <stdexcept>
 #include <utility>
+#include <iterator>
+#include <compare>
 
 template <class T>
 class MyVector{ 
-private: 
-    T* iter = nullptr; 
+private:
     size_t capacity_ = 0;       // Максимально доступный размер памяти
     size_t size_ = 0;          // Текущий размер 
     T* data_ = nullptr;       // Место (обновление)
@@ -56,30 +57,50 @@ private:
 public:
 
     struct iterator {
-        T& operator*() {
-            return *iter; 
-        }
+    private:
+        T* iter = nullptr; 
+    public:
+        using iterator_category = std::contiguous_iterator_tag;
+        using value_type        = T;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = T*;
+        using reference         = T&;
 
-        iterator& operator++() {
-            iter += 1;
-            return* this; 
-        }
+        T&        operator*() const { return *iter; }
+        iterator& operator++() { iter += 1; return* this; }
+        iterator  operator++(int) { auto tmp = *this; ++iter; return tmp; }
+        iterator& operator--() { --iter; return *this; }
+        iterator  operator--(int) { auto tmp = *this; --iter; return tmp; }
+        bool      operator!=(const iterator& other) const { return iter != other.iter; }
 
-        bool operator!=(const iterator& other) const {
-            return iter != other.iter;
-        }
+        iterator&       operator+=(difference_type n) { iter += n; return *this; }
+        iterator&       operator-=(difference_type n) { iter -= n; return *this; }
+        friend iterator operator+(iterator it, difference_type n) { it += n; return it; }
+        friend iterator operator+(difference_type n, iterator it) { it += n; return it; }
+        friend iterator operator-(iterator it, difference_type n) { it -= n; return it; }
+
+        friend difference_type operator-(const iterator& lhs, const iterator& rhs) { return lhs.iter- rhs.iter; }
+        reference              operator[](difference_type n) const { return *(iter + n); }
+        pointer                operator->() const { return iter; }
+        auto                   operator<=>(const iterator& other) const = default;
+
+        explicit iterator(T* ptr = nullptr) : iter(ptr) {}
     };
     
     iterator begin() {
-        iterator iterat;
-        iterat.iter = data_;
-        return iterat;          
+        return iterator(data_);        
     }
 
     iterator end() {
-        iterator iterat;
-        iterat.iter = data_ + size_; 
-        return iterat; 
+        return iterator(data_ + size_);
+    }
+    
+    iterator begin() const {
+        return iterator(data_);        
+    }
+
+    iterator end() const {
+        return iterator(data_ + size_);
     }
     
     MyVector& operator=(const MyVector<T>& other) {  // Метод который копирует в какой- то уже созданный массив. 

@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <iterator>
 
   //               head_                                                   tail_
  //                  |                                                       |               
@@ -71,47 +72,53 @@ private:
     }
     
 public: 
-
     struct iterator {
-        Node* iter = nullptr; 
+    private: 
+        Node* iter_ = nullptr;
+        const MyDLList* ptratlist_ = nullptr;
+    public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type        = T;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = T*;
+        using reference         = T&;
 
-        T& operator*() {
-            return iter -> data_; 
-        }
+        T&        operator*() const { return iter_ -> data_; }
+        iterator& operator++() { iter_ = iter_ -> next_; return* this; }
+        iterator  operator++(int) { auto tmp = *this; iter_ = iter_ -> next_ ; return tmp; }
+        iterator& operator--() { iter_ = (iter_ == nullptr) ? ptratlist_ -> tail_ : iter_ -> prev_; return* this;  }
+        iterator  operator--(int) { auto tmp = *this; iter_ = (iter_ == nullptr) ? ptratlist_ -> tail_: iter_ -> prev_ ; return tmp; }
+        bool      operator!=(const iterator& other) const { return iter_ != other.iter_; }
+        bool      operator==(const iterator& other) const = default; 
+        T*        operator->() const { return &iter_ -> data_; }
 
-        iterator& operator++() {
-            iter = iter -> next_;
-            return* this; 
-        }
-
-        iterator& operator--() {
-            iter = iter -> prev_; 
-            return* this; 
-        }
-
-        bool operator!=(const iterator& other) const {
-            return iter != other.iter;
-        }
-
+        explicit iterator(Node* ptr = nullptr, const MyDLList* patrik = nullptr) : iter_(ptr), ptratlist_(patrik) {}
     };
-
-    iterator last() {
-        iterator iterat;
-        iterat.iter = tail_;
-        return iterat;  
-    }
-
-    iterator begin() {
-        iterator iterat;
-        iterat.iter = head_;
-        return iterat;          
+    
+    iterator begin() { 
+        return iterator(head_, this);          
     }
 
     iterator end() {
-        iterator iterat;
-        iterat.iter = nullptr; 
-        return iterat; 
+        return iterator(nullptr, this); 
     }
+
+    iterator last() {
+        return iterator(tail_, this);      
+    }
+
+    iterator begin() const{ 
+        return iterator(head_, this);          
+    }
+
+    iterator end() const {
+        return iterator(nullptr, this); 
+    }
+
+    iterator last() const {
+        return iterator(tail_, this);      
+    }
+
 
     T& operator[](size_t j) {
         if (j >= size_) {
@@ -181,10 +188,8 @@ public:
             size_ ++; 
 
         } else {
-            Node* current = nullptr;
             head_ = new Node(value);
-            tail_ = head_; 
-            current = head_; 
+            tail_ = head_;  
             tail_ -> prev_ = nullptr;
             size_ ++; 
         }

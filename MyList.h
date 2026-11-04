@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <iterator>
 
   //  head_                                                 
  //     |                                                                    
@@ -67,34 +68,40 @@ private:
     }
 
 public:
-
     struct iterator {
+    private: 
         Node* iter = nullptr; 
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type        = T;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = T*;
+        using reference         = T&;
 
-        T& operator*() {
-            return iter -> data_; 
-        }
+        T&        operator*() const { return iter -> data_; }
+        iterator& operator++() { iter = iter -> next_; return* this; }
+        iterator  operator++(int) { auto tmp = *this; iter = iter -> next_ ; return tmp; }
+        bool      operator!=(const iterator& other) const { return iter != other.iter; }
+        bool      operator==(const iterator& other) const = default; 
+        T*        operator->() const { return &iter -> data_; }
 
-        iterator& operator++() {
-            iter = iter -> next_;
-            return* this; 
-        }
-
-        bool operator!=(const iterator& other) const {
-            return iter != other.iter;
-        }
+        explicit iterator(Node* ptr = nullptr) : iter(ptr) {}
     };
     
     iterator begin() {
-        iterator iterat;
-        iterat.iter = head_;
-        return iterat;          
+        return iterator(head_);          
     }
 
     iterator end() {
-        iterator iterat;
-        iterat.iter = nullptr; 
-        return iterat; 
+        return iterator(nullptr); 
+    }
+
+    iterator begin() const {
+        return iterator(head_);          
+    }
+
+    iterator end() const {
+        return iterator(nullptr); 
     }
 
     T& operator[](size_t j) {
