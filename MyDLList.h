@@ -4,8 +4,8 @@
 #include <stdexcept>
 #include <iterator>
 
-  //               head_                                                   tail_
- //                  |                                                       |               
+  //              head_                                                     tail_
+ //                 |                                                        |               
 //nullptr <-- [prev|А|next] <--> [prev|Б|next] <--> [prev|В|next] <--> [prev|Г|next] --> nullptr
 
 template <class T>
@@ -34,15 +34,15 @@ private:
 
     void deleting_() {
         Node* current_ = nullptr;
-        Node* ptratnext_ = nullptr;          //нужно удалять все элементы начиная с первого и запоминая указатель на следующий элемент. 
+        Node* ptratnext_ = nullptr;                      // нужно удалять все элементы начиная с первого и запоминая указатель на следующий элемент. 
         if (size_ >= 1) {                               // размер 1 и более - тогда действуем
-            for (size_t i = 0; i < size_; i++) {          // проходим все узлы 
+            for (size_t i = 0; i < size_; i++) {       // проходим все узлы
                 if (i == 0) {                         // Первый узел
                     current_ = head_;                // указывает на первый узел, значит current_ получает адрес первого.
                     ptratnext_ = current_ -> next_; // next_ первого узла указывает на второй.
-                    delete head_;                  // Удаляем первый узел 
+                    delete head_;                  // удаляем первый узел 
                     current_ = ptratnext_;
-                } else {                         // со второго узела нужно удалить все                      
+                } else {                         // со второго узела нужно удалить все
                     ptratnext_ = current_ -> next_;
                     delete current_; 
                     current_ = ptratnext_; 
@@ -107,7 +107,7 @@ public:
         return iterator(tail_, this);      
     }
 
-    iterator begin() const{ 
+    iterator begin() const { 
         return iterator(head_, this);          
     }
 
