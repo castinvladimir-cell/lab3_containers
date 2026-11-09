@@ -86,6 +86,37 @@ public:
 
         explicit iterator(T* ptr = nullptr) : iter(ptr) {}
     };
+
+    struct const_iterator {
+    private:
+        const T* iter = nullptr;
+    public:
+        using iterator_category = std::contiguous_iterator_tag;
+        using value_type        = T;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = const T*;
+        using reference         = const T&;
+
+        const T&        operator*() const { return *iter; }
+        const_iterator& operator++() { iter += 1; return* this; }
+        const_iterator  operator++(int) { auto tmp = *this; ++iter; return tmp; }
+        const_iterator& operator--() { --iter; return *this; }
+        const_iterator  operator--(int) { auto tmp = *this; --iter; return tmp; }
+        bool            operator!=(const const_iterator& other) const { return iter != other.iter; }
+
+        const_iterator&       operator+=(difference_type n) { iter += n; return *this; }
+        const_iterator&       operator-=(difference_type n) { iter -= n; return *this; }
+        friend const_iterator operator+(const_iterator it, difference_type n) { it += n; return it; }
+        friend const_iterator operator+(difference_type n, const_iterator it) { it += n; return it; }
+        friend const_iterator operator-(const_iterator it, difference_type n) { it -= n; return it; }
+
+        friend difference_type operator-(const const_iterator& lhs, const const_iterator& rhs) { return lhs.iter - rhs.iter; }
+        reference              operator[](difference_type n) const { return *(iter + n); }
+        pointer                operator->() const { return iter; }
+        auto                   operator<=>(const const_iterator& other) const = default;
+
+        explicit const_iterator(const T* ptr = nullptr) : iter(ptr) {}
+    };
     
     iterator begin() {
         return iterator(data_);        
@@ -95,12 +126,12 @@ public:
         return iterator(data_ + size_);
     }
     
-    iterator begin() const {
-        return iterator(data_);        
+    const_iterator begin() const {
+        return const_iterator(data_);        
     }
 
-    iterator end() const {
-        return iterator(data_ + size_);
+    const_iterator end() const {
+        return const_iterator(data_ + size_);
     }
     
     MyVector& operator=(const MyVector<T>& other) {  // Метод который копирует в какой- то уже созданный массив. 
@@ -131,13 +162,8 @@ public:
         return data_[i];  // Возврат элемента по сссылке без доступа к изменению
     } 
 
-    MyVector(const MyVector<T>& other)  //Если нет массива куда копировать
-        : capacity_(other.capacity_)
-        , size_(other.size_)
-        , data_(new T[other.capacity_]) {
-        for (size_t i = 0; i < size_; i++) {
-            data_[i] = other.data_[i];
-        }
+    MyVector(const MyVector<T>& other) {//Если нет массива куда копировать 
+        copyelements(other);
     }
 
     MyVector() = default; 
@@ -151,7 +177,7 @@ public:
         if(ElNum <= size_) {
             memexp(); 
             for(size_t i = size_; i != ElNum ; i--){ 
-                data_[i] = data_[i - 1]; // Первый цикл для сдвига всего вправо
+                data_[i] = std::move(data_[i - 1]); // Первый цикл для сдвига всего вправо
             } 
             data_[ElNum] = ElVal;
             size_++;
@@ -165,7 +191,7 @@ public:
             throw std::out_of_range("Error: Object are not in data_."); 
         } else {  
             for(size_t i = j; i < size_ - 1; i++){ 
-                data_[i] = data_[i + 1]; 
+                data_[i] = std::move(data_[i + 1]); 
             } 
             size_ = size_ - 1; 
         } 

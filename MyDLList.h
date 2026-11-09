@@ -94,6 +94,29 @@ public:
 
         explicit iterator(Node* ptr = nullptr, const MyDLList* patrik = nullptr) : iter_(ptr), ptratlist_(patrik) {}
     };
+
+    struct const_iterator {
+    private:
+        const Node* iter_ = nullptr;
+        const MyDLList* ptratlist_ = nullptr;
+    public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type        = T;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = const T*;
+        using reference         = const T&;
+
+        const T&        operator*() const { return iter_ -> data_; }
+        const_iterator& operator++() { iter_ = iter_ -> next_; return* this; }
+        const_iterator  operator++(int) { auto tmp = *this; iter_ = iter_ -> next_ ; return tmp; }
+        const_iterator& operator--() { iter_ = (iter_ == nullptr) ? ptratlist_ -> tail_ : iter_ -> prev_; return* this; }
+        const_iterator  operator--(int) { auto tmp = *this; iter_ = (iter_ == nullptr) ? ptratlist_ -> tail_ : iter_ -> prev_ ; return tmp; }
+        bool            operator!=(const const_iterator& other) const { return iter_ != other.iter_; }
+        bool            operator==(const const_iterator& other) const = default;
+        const T*        operator->() const { return &iter_ -> data_; }
+
+        explicit const_iterator(const Node* ptr = nullptr, const MyDLList* patrik = nullptr) : iter_(ptr), ptratlist_(patrik) {}
+    };
     
     iterator begin() { 
         return iterator(head_, this);          
@@ -107,16 +130,16 @@ public:
         return iterator(tail_, this);      
     }
 
-    iterator begin() const { 
-        return iterator(head_, this);          
+    const_iterator begin() const { 
+        return const_iterator(head_, this);          
     }
 
-    iterator end() const {
-        return iterator(nullptr, this); 
+    const_iterator end() const {
+        return const_iterator(nullptr, this); 
     }
 
-    iterator last() const {
-        return iterator(tail_, this);      
+    const_iterator last() const {
+        return const_iterator(tail_, this);      
     }
 
 
@@ -277,7 +300,7 @@ public:
         size_++;
     }
 
-    void print_list() {
+    void print_list() const {
         if (size_ >= 1) {
             Node* current_ = nullptr;
             for (size_t i = 0; i < size_; i++) {

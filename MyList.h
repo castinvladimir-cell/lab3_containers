@@ -87,6 +87,26 @@ public:
 
         explicit iterator(Node* ptr = nullptr) : iter(ptr) {}
     };
+
+    struct const_iterator {
+    private:
+        const Node* iter = nullptr;
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type        = T;
+        using difference_type   = std::ptrdiff_t;
+        using pointer           = const T*;
+        using reference         = const T&;
+
+        const T&        operator*() const { return iter -> data_; }
+        const_iterator& operator++() { iter = iter -> next_; return* this; }
+        const_iterator  operator++(int) { auto tmp = *this; iter = iter -> next_ ; return tmp; }
+        bool            operator!=(const const_iterator& other) const { return iter != other.iter; }
+        bool            operator==(const const_iterator& other) const = default;
+        const T*        operator->() const { return &iter -> data_; }
+
+        explicit const_iterator(const Node* ptr = nullptr) : iter(ptr) {}
+    };
     
     iterator begin() {
         return iterator(head_);          
@@ -96,12 +116,12 @@ public:
         return iterator(nullptr); 
     }
 
-    iterator begin() const {
-        return iterator(head_);          
+    const_iterator begin() const {
+        return const_iterator(head_);          
     }
 
-    iterator end() const {
-        return iterator(nullptr); 
+    const_iterator end() const {
+        return const_iterator(nullptr); 
     }
 
     T& operator[](size_t j) {
