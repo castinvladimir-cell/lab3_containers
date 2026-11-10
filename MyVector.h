@@ -6,16 +6,17 @@
 #include <utility>
 #include <iterator>
 #include <compare>
+#include <memory>
 
 template <class T>
 class MyVector{ 
 private:
     size_t capacity_ = 0;       // Максимально доступный размер памяти
     size_t size_ = 0;          // Текущий размер 
-    T* data_ = nullptr;       // Место (обновление)
+    std::unique_ptr<T[]> data_ = nullptr; // Место (обновление)
 
     void copyelements(const MyVector<T>& other) {
-        data_ = new T[other.capacity_];
+        data_ = std::make_unique<T[]>(other.capacity_);
         capacity_ = other.capacity_;
         size_ = other.size_;
 
@@ -27,17 +28,14 @@ private:
     void memexp() { 
         if(size_ + 1 > capacity_) { 
             if (capacity_ == 0) {                                            //Пустой capacity
-                T *tmp = new T[2]; 
-                delete[] data_; 
-                data_ = tmp; 
+                data_ = std::make_unique<T[]>(2); 
                 capacity_ = 2; 
             } else if (capacity_ < std::numeric_limits<size_t>::max() / 2) { // capacity меньше половины макс. зн - я 
-                T* tmp = new T[capacity_ * 2];                                
+                auto tmp = std::make_unique<T[]>(capacity_ * 2);                                
                 for(size_t i = 0; i < size_; i++){ 
                     tmp[i] = std::move(data_[i]); 
                 } 
-                delete[] data_; 
-                data_ = tmp; 
+                data_ = std::move(tmp); 
                 capacity_ = capacity_ * 2; 
             } else { 
                 throw std::length_error("Error: Object exceeds maximum implementation length."); 
@@ -48,8 +46,7 @@ private:
     void move_(MyVector<T>& other) {
         size_ = other.size_; 
         capacity_ = other.capacity_; 
-        data_ = other.data_; 
-        other.data_ = nullptr; 
+        data_ = std::move(other.data_); 
         other.size_ = 0; 
         other.capacity_ = 0; 
     }
@@ -119,26 +116,25 @@ public:
     };
     
     iterator begin() {
-        return iterator(data_);        
+        return iterator(data_.get());        
     }
 
     iterator end() {
-        return iterator(data_ + size_);
+        return iterator(data_.get() + size_);
     }
     
     const_iterator begin() const {
-        return const_iterator(data_);        
+        return const_iterator(data_.get());        
     }
 
     const_iterator end() const {
-        return const_iterator(data_ + size_);
+        return const_iterator(data_.get() + size_);
     }
     
     MyVector& operator=(const MyVector<T>& other) {  // Метод который копирует в какой- то уже созданный массив. 
         if(this == &other){
             return *this;
         } else {
-            delete[] data_; 
             copyelements(other);
             return *this;            
         }
@@ -148,7 +144,6 @@ public:
         if(this == &other){
             return *this;
         } else {
-            delete[] data_; 
             move_(other);
             return *this;            
         }
@@ -171,7 +166,7 @@ public:
     MyVector(const size_t size)
         : capacity_(size)
         , size_(size)
-        , data_(new T[size]) {} 
+        , data_(std::make_unique<T[]>(size)) {} 
 
     void insert(const T& ElVal, size_t ElNum) { 
         if(ElNum <= size_) {
@@ -207,6 +202,10 @@ public:
         return size_; 
     }; 
 
+    size_t capacity() const { 
+        return capacity_; 
+    } 
+
     void print_elements() const { 
         if(size_ != 0){ 
             std::cout << "Элементы: "; 
@@ -225,13 +224,8 @@ public:
     MyVector(MyVector<T>&& other) noexcept
         : capacity_(other.capacity_)
         , size_(other.size_)
-        , data_(other.data_) {
-        other.data_ = nullptr;
+        , data_(std::move(other.data_)) {
         other.size_ = 0;
         other.capacity_ = 0;
     }
-
-    ~MyVector() { 
-        delete[] data_; 
-    } 
 };
